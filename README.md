@@ -1,2 +1,3 @@
-In this Project I made uses a cosine similarity algorithm to recommends movies based on the users like and dislike
-Technologies:Python,Scikit learn, pandas, numpy and beutifulsoup
+# Movie Recommendation System
+
+A simple movie recommendation system that uses collaborative filtering based on user similarity. The system allows users to rate movies (either from IMDb top movies, by genre, or their favorites) and provides personalized movie recommendations based on similar users' preferences. Built using Python with pandas for data manipulation, scikit-learn for calculating user similarities, and BeautifulSoup for web scraping IMDb data. The system uses the MovieLens dataset as its foundation and implements a user-based collaborative filtering approach using cosine similarity to find users with similar taste profiles.

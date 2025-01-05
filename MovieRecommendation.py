@@ -4,8 +4,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import requests
 from bs4 import BeautifulSoup
 
-ratings_path = '/Projects/ml-32m/ml-32m/ratings.csv'#CHANGE THIS TO YOUR PATH
-movies_path = '/Projects/ml-32m/ml-32m/movies.csv'#CHANGE THIS TO YOUR PATH
+ratings_path = '/workspaces/MoviePrediction/ratings.csv'#CHANGE THIS TO YOUR PATH
+movies_path = '/workspaces/MoviePrediction/movies.csv'#CHANGE THIS TO YOUR PATH
 
 ratings = pd.read_csv(ratings_path)
 movies = pd.read_csv(movies_path, usecols=[0, 1], encoding='latin-1')

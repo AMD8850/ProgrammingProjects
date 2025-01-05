@@ -4,8 +4,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import requests
 from bs4 import BeautifulSoup
 
-ratings_path = '/workspaces/MoviePrediction/ratings.csv'#CHANGE THIS TO YOUR PATH
-movies_path = '/workspaces/MoviePrediction/movies.csv'#CHANGE THIS TO YOUR PATH
+ratings_path = '/workspaces/MoviePrediction/ratings.csv'
+movies_path = '/workspaces/MoviePrediction/movies.csv'
 
 ratings = pd.read_csv(ratings_path)
 movies = pd.read_csv(movies_path, usecols=[0, 1], encoding='latin-1')
@@ -51,72 +51,47 @@ def get_imdb_top_movies(n=100):
         print(f"Error fetching IMDb movies: {e}")
         return []
 
-def get_user_ratings(num_movies=10):
+def get_user_ratings(num_movies=5):
     user_ratings = {}
     
-    print("\nWould you like to rate:")
-    print("1. Top IMDb movies")
-    print("2. Movies by genre")
-    print("3. Enter your favorite movies")
-    choice = input("Enter your choice (1, 2, or 3): ").strip()
-    
-    if choice == '1' or choice == '2':
-        # Get the appropriate movie list based on choice
-        if choice == '1':
-            print("\nFetching top IMDb movies...")
-            top_movies = get_imdb_top_movies()
-            sample_movies = pd.Series(top_movies).sample(min(num_movies, len(top_movies))) if top_movies else movies.sample(num_movies)['title']
-        else:
-            print("Available genres: Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Fantasy, Horror, Romance, Sci-Fi, Thriller")
-            genre = input("Enter a genre you're interested in: ").strip()
-            genre_movies = get_movies_by_genre(movies_path, genre)
-            sample_movies = pd.Series(genre_movies).sample(min(num_movies, len(genre_movies))) if genre_movies else movies.sample(num_movies)['title']
-        
-        # Get ratings for the selected movies
-        for movie in sample_movies:
-            if movie in user_movie_matrix.columns:
-                while True:
-                    try:
-                        rating = float(input(f"Rate {movie} (1-5) or press Enter to skip: ").strip())
-                        if rating >= 1 and rating <= 5:
-                            user_ratings[movie] = rating
-                            break
-                        elif rating == "":
-                            break
-                        else:
-                            print("Rating should be between 1 and 5.")
-                    except ValueError:
-                        print("Invalid input. Please enter a number between 1 and 5 or press Enter to skip.")
-    elif choice == '3':
-        # Logic for favorite movies remains the same
-        print("\nEnter 5 of your favorite movies and rate them (1-5):")
-        for i in range(5):
-            while True:
-                movie_title = input(f"Enter movie {i+1}: ").strip()
-                if movie_title in user_movie_matrix.columns:
-                    try:
-                        rating = float(input(f"Rate {movie_title} (1-5): "))
-                        if 1 <= rating <= 5:
-                            user_ratings[movie_title] = rating
-                            break
-                        else:
-                            print("Rating should be between 1 and 5.")
-                    except ValueError:
-                        print("Invalid input. Please enter a number between 1 and 5.")
-                else:
-                    print("Movie not found in database. Please try another movie.")
+    print("\nEnter 5 of your favorite movies and rate them (1-5):")
+    for i in range(num_movies):
+        while True:
+            movie_title = input(f"Enter movie {i+1}: ").strip()
+            if movie_title in user_movie_matrix.columns:
+                try:
+                    rating = float(input(f"Rate {movie_title} (1-5): "))
+                    if 1 <= rating <= 5:
+                        user_ratings[movie_title] = rating
+                        break
+                    else:
+                        print("Rating should be between 1 and 5.")
+                except ValueError:
+                    print("Invalid input. Please enter a number between 1 and 5.")
+            else:
+                print("Movie not found in database. Please try another movie.")
     
     return user_ratings
 
 def add_user_ratings(user_ratings, user_movie_matrix):
-    new_user_id = user_movie_matrix.index.max() + 1  
-    user_movie_matrix.loc[new_user_id] = 0  
+    matrix = user_movie_matrix.copy()
+    
+    new_user_id = len(matrix.index)
+    matrix.loc[new_user_id] = 0
     
     for movie, rating in user_ratings.items():
-        if movie in user_movie_matrix.columns:
-            user_movie_matrix.at[new_user_id, movie] = rating
+        if movie in matrix.columns:
+            matrix.at[new_user_id, movie] = rating
     
-    return new_user_id
+    # Calculate new similarity matrix
+    user_similarity = cosine_similarity(matrix.fillna(0))
+    user_similarity_df = pd.DataFrame(
+        user_similarity, 
+        index=matrix.index, 
+        columns=matrix.index
+    )
+    
+    return new_user_id, matrix, user_similarity_df
 
 def get_recommendations(user_id, num_recommendations=5):
     # Get the movies the user has already rated
@@ -134,10 +109,7 @@ def get_recommendations(user_id, num_recommendations=5):
     return recommended_movies
 
 user_ratings = get_user_ratings()
-
-new_user_id = add_user_ratings(user_ratings, user_movie_matrix)
-
-user_similarity = cosine_similarity(user_movie_matrix.fillna(0))
-user_similarity_df = pd.DataFrame(user_similarity, index=user_movie_matrix.index, columns=user_movie_matrix.index)
+new_user_id, user_movie_matrix, user_similarity_df = add_user_ratings(user_ratings, user_movie_matrix)
 
 print(get_recommendations(new_user_id))
+

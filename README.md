@@ -4,4 +4,4 @@ A simple movie recommendation system that uses collaborative filtering based on 
 
 How to run: Change the path of code to the file locations. This dataset goes up to September 2018 but you can change out the csv file with newer movies as GitHub won't let me upload a larger dataset, so visit https://grouplens.org/datasets/movielens/to get a larger dataset that you can use locally.
 
-In the future hopefull i will be able to use a data set from a popluar site such as Imbd
+In the future hopefully i will be able to use a data set from a poplular site such as Imbd

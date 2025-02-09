@@ -26,6 +26,7 @@ def get_movies_by_genre(movies_path, genre):
     genre_movies = movies_with_genres[movies_with_genres['genres'].str.contains(genre, case=False, na=False)]
     return genre_movies['title'].tolist()
 
+''' WORKING ON WEBSCRAPING RN IN PROGRESS
 def get_imdb_top_movies(n=100):
     # URL for IMDb Top 250 movies
     url = "https://www.imdb.com/chart/top/"
@@ -50,6 +51,7 @@ def get_imdb_top_movies(n=100):
     except Exception as e:
         print(f"Error fetching IMDb movies: {e}")
         return []
+'''
 
 def get_user_ratings(num_movies=5):
     user_ratings = {}
